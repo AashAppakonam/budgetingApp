@@ -377,7 +377,52 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 Navigator.pop(context);
               },
               child: Text(widget.existingTransaction == null ? 'SUBMIT' : 'UPDATE', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 1.0)),
-            )
+            ),
+            if (widget.existingTransaction != null) ...[
+              const SizedBox(height: 16),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.redAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: surfaceColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      title: Text('Delete Entry?', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
+                      content: Text('Are you sure you want to remove this transaction?', style: TextStyle(color: hintColor)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('Cancel', style: TextStyle(color: hintColor)),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+                  
+                  if (confirm == true) {
+                    provider.deleteTransaction(widget.existingTransaction!.id);
+                    if (context.mounted) Navigator.pop(context);
+                  }
+                },
+                child: const Text('DELETE ENTRY', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 1.0)),
+              ),
+            ],
           ],
         ),
       ),
