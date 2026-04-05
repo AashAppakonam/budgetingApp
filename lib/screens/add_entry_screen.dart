@@ -73,6 +73,75 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     }
   }
 
+  void _showAddCategoryDialog(BuildContext context, BudgetProvider provider) {
+    final nameCtrl = TextEditingController();
+    final emojiCtrl = TextEditingController(text: '🛒');
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final hintColor = isDark ? Colors.white54 : Colors.black54;
+    final surfaceColor = isDark ? const Color(0xFF151515) : Colors.white;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: surfaceColor,
+          title: Text('New Category', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emojiCtrl,
+                maxLength: 1,
+                style: TextStyle(fontSize: 24, color: textColor),
+                decoration: InputDecoration(
+                  labelText: 'Emoji',
+                  labelStyle: TextStyle(color: hintColor),
+                  counterText: '',
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: hintColor)),
+                  focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                controller: nameCtrl,
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
+                  labelText: 'Category Name',
+                  labelStyle: TextStyle(color: hintColor),
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: hintColor)),
+                  focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: hintColor)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00E676),
+                foregroundColor: Colors.black,
+              ),
+              onPressed: () {
+                if (nameCtrl.text.isNotEmpty && emojiCtrl.text.isNotEmpty) {
+                  provider.addCategory(nameCtrl.text, emojiCtrl.text);
+                  setState(() {
+                    _selectedCategory = provider.categories.last;
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BudgetProvider>(context);
@@ -171,28 +240,48 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             const SizedBox(height: 25),
 
             // Category Selector
-            DropdownButtonFormField<ExpenseCategory>(
-              value: _selectedCategory,
-              icon: Icon(Icons.keyboard_arrow_down, color: hintColor),
-              dropdownColor: surfaceColor,
-              style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600),
-              decoration: InputDecoration(
-                labelText: 'Category',
-                labelStyle: TextStyle(color: hintColor, fontSize: 14),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
-                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
-              ),
-              items: provider.categories.map((cat) {
-                return DropdownMenuItem(
-                  value: cat,
-                  child: Text('${cat.emoji}  ${cat.name}'),
-                );
-              }).toList(),
-              onChanged: (val) {
-                setState(() {
-                  _selectedCategory = val;
-                });
-              },
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<ExpenseCategory>(
+                    value: _selectedCategory,
+                    icon: Icon(Icons.keyboard_arrow_down, color: hintColor),
+                    dropdownColor: surfaceColor,
+                    style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      labelText: 'Category',
+                      labelStyle: TextStyle(color: hintColor, fontSize: 14),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+                      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                    ),
+                    items: provider.categories.map((cat) {
+                      return DropdownMenuItem(
+                        value: cat,
+                        child: Text('${cat.emoji}  ${cat.name}'),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedCategory = val;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00E676).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: Color(0xFF00E676)),
+                    onPressed: () => _showAddCategoryDialog(context, provider),
+                    tooltip: 'Add new category',
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 25),
 
