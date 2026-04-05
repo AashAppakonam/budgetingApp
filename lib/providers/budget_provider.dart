@@ -17,6 +17,8 @@ class BudgetProvider extends ChangeNotifier {
     ExpenseCategory(id: '4', name: 'Income', emoji: '💵', colorValue: Colors.greenAccent.value),
   ];
   
+  bool _isDarkMode = true;
+  String _currencySymbol = '\$';
   SortOption _currentSort = SortOption.dateDesc;
   String? _filterCategoryId;
 
@@ -27,6 +29,12 @@ class BudgetProvider extends ChangeNotifier {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     
+    // Load Theme
+    _isDarkMode = prefs.getBool('isDarkMode') ?? true;
+
+    // Load Currency
+    _currencySymbol = prefs.getString('currencySymbol') ?? '\$';
+
     // Load Budget
     _totalBudget = prefs.getDouble('totalBudget') ?? 0.0;
 
@@ -50,6 +58,8 @@ class BudgetProvider extends ChangeNotifier {
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     
+    await prefs.setBool('isDarkMode', _isDarkMode);
+    await prefs.setString('currencySymbol', _currencySymbol);
     await prefs.setDouble('totalBudget', _totalBudget);
     
     final categoriesJson = json.encode(_categories.map((c) => c.toJson()).toList());
@@ -60,6 +70,8 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   double get totalBudget => _totalBudget;
+  bool get isDarkMode => _isDarkMode;
+  String get currencySymbol => _currencySymbol;
   
   List<Transaction> get transactions {
     var list = _transactions.toList();
@@ -120,6 +132,18 @@ class BudgetProvider extends ChangeNotifier {
   // For Autofill
   List<String> get previousNames => _transactions.map((t) => t.name).toSet().toList();
 
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    _saveData();
+    notifyListeners();
+  }
+
+  void setCurrency(String symbol) {
+    _currencySymbol = symbol;
+    _saveData();
+    notifyListeners();
+  }
+
   void setBudget(double budget) {
     _totalBudget = budget;
     _saveData();
@@ -171,6 +195,7 @@ class BudgetProvider extends ChangeNotifier {
     ];
     _currentSort = SortOption.dateDesc;
     _filterCategoryId = null;
+    _currencySymbol = '\$';
     
     notifyListeners();
   }

@@ -21,6 +21,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   DateTime _selectedDate = DateTime.now();
 
   Future<void> _selectDate(BuildContext context) async {
+    final isDark = Provider.of<BudgetProvider>(context, listen: false).isDarkMode;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -29,12 +30,19 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF00E676),
-              onPrimary: Colors.black,
-              surface: Color(0xFF151515),
-              onSurface: Colors.white,
-            ),
+            colorScheme: isDark 
+              ? const ColorScheme.dark(
+                  primary: Color(0xFF00E676),
+                  onPrimary: Colors.black,
+                  surface: Color(0xFF151515),
+                  onSurface: Colors.white,
+                )
+              : const ColorScheme.light(
+                  primary: Color(0xFF00E676),
+                  onPrimary: Colors.white,
+                  surface: Colors.white,
+                  onSurface: Colors.black,
+                ),
           ),
           child: child!,
         );
@@ -50,6 +58,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BudgetProvider>(context);
+    final isDark = provider.isDarkMode;
+    
+    final textColor = isDark ? Colors.white : Colors.black;
+    final hintColor = isDark ? Colors.white54 : Colors.black54;
+    final dividerColor = isDark ? Colors.white24 : Colors.black26;
+    final surfaceColor = isDark ? const Color(0xFF151515) : Colors.white;
     
     // Set default category if none selected
     _selectedCategory ??= provider.categories.first;
@@ -67,7 +81,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Expense', style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('Expense', style: TextStyle(color: hintColor, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(width: 10),
                 Switch(
                   value: _isIncome,
@@ -81,7 +95,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   },
                 ),
                 const SizedBox(width: 10),
-                const Text('Income', style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('Income', style: TextStyle(color: hintColor, fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
             const SizedBox(height: 40),
@@ -91,13 +105,13 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   controller: _amountController,
                   autofocus: true,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  style: const TextStyle(fontSize: 64, fontWeight: FontWeight.w800, letterSpacing: -2.0, color: Colors.white),
-                  decoration: const InputDecoration(
-                    prefixText: '\$ ',
-                    prefixStyle: TextStyle(fontSize: 64, fontWeight: FontWeight.w800, letterSpacing: -2.0, color: Colors.white54),
+                  style: TextStyle(fontSize: 64, fontWeight: FontWeight.w800, letterSpacing: -2.0, color: textColor),
+                  decoration: InputDecoration(
+                    prefixText: '${provider.currencySymbol} ',
+                    prefixStyle: TextStyle(fontSize: 64, fontWeight: FontWeight.w800, letterSpacing: -2.0, color: hintColor),
                     border: InputBorder.none,
                     hintText: '0',
-                    hintStyle: TextStyle(color: Colors.white24),
+                    hintStyle: TextStyle(color: dividerColor),
                   ),
                 ),
               ),
@@ -125,12 +139,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 return TextField(
                   controller: textEditingController,
                   focusNode: focusNode,
-                  style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w600),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600),
+                  decoration: InputDecoration(
                     labelText: 'Entry Name',
-                    labelStyle: TextStyle(color: Colors.white54, fontSize: 14),
-                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                    labelStyle: TextStyle(color: hintColor, fontSize: 14),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
                   ),
                 );
               },
@@ -140,14 +154,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             // Category Selector
             DropdownButtonFormField<ExpenseCategory>(
               value: _selectedCategory,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54),
-              dropdownColor: const Color(0xFF151515),
-              style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w600),
-              decoration: const InputDecoration(
+              icon: Icon(Icons.keyboard_arrow_down, color: hintColor),
+              dropdownColor: surfaceColor,
+              style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
                 labelText: 'Category',
-                labelStyle: TextStyle(color: Colors.white54, fontSize: 14),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                labelStyle: TextStyle(color: hintColor, fontSize: 14),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
               ),
               items: provider.categories.map((cat) {
                 return DropdownMenuItem(
@@ -166,12 +180,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             TextField(
               controller: _notesController,
               maxLines: null,
-              style: const TextStyle(fontSize: 16, color: Colors.white70),
-              decoration: const InputDecoration(
+              style: TextStyle(fontSize: 16, color: textColor),
+              decoration: InputDecoration(
                 labelText: 'Additional Notes',
-                labelStyle: TextStyle(color: Colors.white54, fontSize: 14),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                labelStyle: TextStyle(color: hintColor, fontSize: 14),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
               ),
             ),
             const SizedBox(height: 25),
@@ -180,18 +194,18 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             GestureDetector(
               onTap: () => _selectDate(context),
               child: Container(
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.white24)),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: dividerColor)),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Date', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                    Text('Date', style: TextStyle(color: hintColor, fontSize: 14)),
                     const SizedBox(height: 8),
                     Text(
                       DateFormat('EEEE, MMMM d, yyyy').format(_selectedDate),
-                      style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
