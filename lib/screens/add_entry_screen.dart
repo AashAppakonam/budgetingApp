@@ -6,19 +6,37 @@ import '../models/expense_category.dart';
 import '../models/transaction.dart';
 
 class AddEntryScreen extends StatefulWidget {
-  const AddEntryScreen({super.key});
+  final Transaction? existingTransaction;
+
+  const AddEntryScreen({super.key, this.existingTransaction});
 
   @override
   State<AddEntryScreen> createState() => _AddEntryScreenState();
 }
 
 class _AddEntryScreenState extends State<AddEntryScreen> {
-  final _amountController = TextEditingController();
+  late TextEditingController _amountController;
   final _nameController = TextEditingController();
   final _notesController = TextEditingController();
   ExpenseCategory? _selectedCategory;
   bool _isIncome = false;
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final ext = widget.existingTransaction;
+    _amountController = TextEditingController(text: ext?.amount.toString() ?? '');
+    if (ext != null) {
+      _nameController.text = ext.name;
+      _notesController.text = ext.notes;
+      _selectedCategory = ext.category;
+      _isIncome = ext.isIncome;
+      _selectedDate = ext.date;
+    } else {
+      _selectedDate = DateTime.now();
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final isDark = Provider.of<BudgetProvider>(context, listen: false).isDarkMode;
@@ -70,7 +88,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Entry'),
+        title: Text(widget.existingTransaction == null ? 'New Entry' : 'Edit Entry'),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
@@ -120,6 +138,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             
             // Autofill for Names
             Autocomplete<String>(
+              initialValue: TextEditingValue(text: widget.existingTransaction?.name ?? ''),
               optionsBuilder: (TextEditingValue textEditingValue) {
                 if (textEditingValue.text == '') {
                   return const Iterable<String>.empty();
@@ -226,18 +245,25 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               onPressed: () {
                 if (_amountController.text.isEmpty || _nameController.text.isEmpty) return;
                 
-                provider.addTransaction(Transaction(
-                  id: DateTime.now().toString(),
+                final newTx = Transaction(
+                  id: widget.existingTransaction?.id ?? DateTime.now().toString(),
                   name: _nameController.text,
                   amount: double.parse(_amountController.text),
                   category: _selectedCategory!,
                   notes: _notesController.text,
                   date: _selectedDate,
                   isIncome: _isIncome,
-                ));
+                );
+
+                if (widget.existingTransaction != null) {
+                  provider.updateTransaction(newTx);
+                } else {
+                  provider.addTransaction(newTx);
+                }
+                
                 Navigator.pop(context);
               },
-              child: const Text('SUBMIT', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 1.0)),
+              child: Text(widget.existingTransaction == null ? 'SUBMIT' : 'UPDATE', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 1.0)),
             )
           ],
         ),

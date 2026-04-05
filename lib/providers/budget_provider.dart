@@ -177,6 +177,15 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTransaction(Transaction updatedTransaction) {
+    final index = _transactions.indexWhere((t) => t.id == updatedTransaction.id);
+    if (index >= 0) {
+      _transactions[index] = updatedTransaction;
+      _saveData();
+      notifyListeners();
+    }
+  }
+
   void deleteTransaction(String id) {
     _transactions.removeWhere((t) => t.id == id);
     _saveData();

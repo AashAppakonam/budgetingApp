@@ -370,6 +370,14 @@ class MainScreen extends StatelessWidget {
                                       color: tx.isIncome ? const Color(0xFF00E676) : textColor,
                                     ),
                                   ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddEntryScreen(existingTransaction: tx),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             );
