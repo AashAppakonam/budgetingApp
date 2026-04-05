@@ -332,12 +332,36 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 ),
               ),
               onPressed: () {
-                if (_amountController.text.isEmpty || _nameController.text.isEmpty) return;
+                final amountText = _amountController.text.trim();
+                final nameText = _nameController.text.trim();
+
+                if (amountText.isEmpty || nameText.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter both an amount and a name.'),
+                      backgroundColor: Colors.redAccent,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
+
+                final amount = double.tryParse(amountText);
+                if (amount == null || amount <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a valid amount greater than 0.'),
+                      backgroundColor: Colors.redAccent,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
                 
                 final newTx = Transaction(
                   id: widget.existingTransaction?.id ?? DateTime.now().toString(),
-                  name: _nameController.text,
-                  amount: double.parse(_amountController.text),
+                  name: nameText,
+                  amount: amount,
                   category: _selectedCategory!,
                   notes: _notesController.text,
                   date: _selectedDate,
