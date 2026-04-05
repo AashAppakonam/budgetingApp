@@ -212,8 +212,78 @@ class MainScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Base Budget', style: TextStyle(color: hintColor, fontSize: 14, fontWeight: FontWeight.normal)),
-                    Text('${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
+                    IntrinsicWidth(
+                      child: InkWell(
+                        onTap: () async {
+                          final DateTimeRange? picked = await showDateRangePicker(
+                            context: context,
+                            initialDateRange: budgetState.filterStartDate != null && budgetState.filterEndDate != null 
+                                ? DateTimeRange(start: budgetState.filterStartDate!, end: budgetState.filterEndDate!)
+                                : null,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: isDark 
+                                    ? const ColorScheme.dark(
+                                        primary: Color(0xFF00E676),
+                                        onPrimary: Colors.black,
+                                        surface: Color(0xFF151515),
+                                        onSurface: Colors.white,
+                                      )
+                                    : const ColorScheme.light(
+                                        primary: Color(0xFF00E676),
+                                        onPrimary: Colors.white,
+                                        surface: Colors.white,
+                                        onSurface: Colors.black,
+                                      ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+                          if (picked != null) {
+                            budgetState.setDateRange(picked.start, picked.end);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: surfaceColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: dividerColor),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.date_range, size: 16, color: hintColor),
+                              const SizedBox(width: 6),
+                              Text(
+                                budgetState.filterStartDate != null && budgetState.filterEndDate != null
+                                    ? '${DateFormat('MMM d').format(budgetState.filterStartDate!)} - ${DateFormat('MMM d').format(budgetState.filterEndDate!)}'
+                                    : 'All Time',
+                                style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                              if (budgetState.filterStartDate != null) ...[
+                                const SizedBox(width: 4),
+                                GestureDetector(
+                                  onTap: () => budgetState.setDateRange(null, null),
+                                  child: Icon(Icons.close, size: 16, color: hintColor),
+                                ),
+                              ]
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Base Budget', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.normal)),
+                        Text('${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
+                      ],
+                    ),
                   ],
                 ),
               ),

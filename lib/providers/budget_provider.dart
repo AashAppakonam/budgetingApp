@@ -21,6 +21,9 @@ class BudgetProvider extends ChangeNotifier {
   String _currencySymbol = '\$';
   SortOption _currentSort = SortOption.dateDesc;
   String? _filterCategoryId;
+  
+  DateTime? _filterStartDate;
+  DateTime? _filterEndDate;
 
   BudgetProvider() {
     _loadData();
@@ -73,8 +76,27 @@ class BudgetProvider extends ChangeNotifier {
   bool get isDarkMode => _isDarkMode;
   String get currencySymbol => _currencySymbol;
   
+  DateTime? get filterStartDate => _filterStartDate;
+  DateTime? get filterEndDate => _filterEndDate;
+
+  void setDateRange(DateTime? start, DateTime? end) {
+    _filterStartDate = start;
+    _filterEndDate = end;
+    notifyListeners();
+  }
+
+  Iterable<Transaction> get _dateFilteredTransactions {
+    if (_filterStartDate == null || _filterEndDate == null) return _transactions;
+    return _transactions.where((t) {
+      final tDate = DateTime(t.date.year, t.date.month, t.date.day);
+      final sDate = DateTime(_filterStartDate!.year, _filterStartDate!.month, _filterStartDate!.day);
+      final eDate = DateTime(_filterEndDate!.year, _filterEndDate!.month, _filterEndDate!.day);
+      return tDate.compareTo(sDate) >= 0 && tDate.compareTo(eDate) <= 0;
+    });
+  }
+
   List<Transaction> get transactions {
-    var list = _transactions.toList();
+    var list = _dateFilteredTransactions.toList();
 
     // Apply Filter
     if (_filterCategoryId != null) {
@@ -116,13 +138,13 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  double get totalSpent => _transactions.where((t) => !t.isIncome).fold(0, (sum, item) => sum + item.amount);
-  double get totalIncome => _transactions.where((t) => t.isIncome).fold(0, (sum, item) => sum + item.amount);
+  double get totalSpent => _dateFilteredTransactions.where((t) => !t.isIncome).fold(0, (sum, item) => sum + item.amount);
+  double get totalIncome => _dateFilteredTransactions.where((t) => t.isIncome).fold(0, (sum, item) => sum + item.amount);
   double get remainingBudget => _totalBudget + totalIncome - totalSpent;
 
   Map<Color, double> get categorySpent {
     final Map<Color, double> map = {};
-    for (var tx in _transactions.where((t) => !t.isIncome)) {
+    for (var tx in _dateFilteredTransactions.where((t) => !t.isIncome)) {
       final color = Color(tx.category.colorValue);
       map[color] = (map[color] ?? 0) + tx.amount;
     }
@@ -131,7 +153,7 @@ class BudgetProvider extends ChangeNotifier {
 
   List<Map<String, dynamic>> get categorySpentData {
     final Map<String, Map<String, dynamic>> map = {};
-    for (var tx in _transactions.where((t) => !t.isIncome)) {
+    for (var tx in _dateFilteredTransactions.where((t) => !t.isIncome)) {
       final key = tx.category.id;
       if (!map.containsKey(key)) {
         map[key] = {
