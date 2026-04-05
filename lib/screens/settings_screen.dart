@@ -1,6 +1,14 @@
+import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:csv/csv.dart';
+import 'package:intl/intl.dart';
 import '../providers/budget_provider.dart';
+import '../models/transaction.dart';
+import '../models/expense_category.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -111,6 +119,154 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  void _exportCSV(BuildContext context, BudgetProvider provider) async {
+    try {
+      // Create CSV Header
+      StringBuffer csvString = StringBuffer();
+      csvString.writeln('Date,Type,Amount,Category,Name,Notes');
+
+      // Add Data
+      for (var tx in provider.transactions) {
+        final dateStr = DateFormat('yyyy-MM-dd').format(tx.date);
+        final typeStr = tx.isIncome ? 'Income' : 'Expense';
+        final amountStr = tx.amount.toStringAsFixed(2);
+        
+        // Escape quotes to prevent CSV breaking
+        final categoryStr = tx.category.name.replaceAll('\"', '\"\"');
+        final nameStr = tx.name.replaceAll('\"', '\"\"');
+        final notesStr = tx.notes.replaceAll('\"', '\"\"');
+
+        csvString.writeln('$dateStr,$typeStr,$amountStr,"${tx.category.emoji} $categoryStr","$nameStr","$notesStr"');
+      }
+
+      final Uint8List fileBytes = Uint8List.fromList(utf8.encode(csvString.toString()));
+
+      final String? selectedDirectory = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Budget Export',
+        fileName: 'budget_export.csv',
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+        bytes: fileBytes,
+      );
+
+      if (selectedDirectory != null) {
+        // file_picker saveFile with `bytes` already writes the file for us on most platforms,
+        // but just to be sure we can check if it exists or write it if it doesn't.
+        final file = File(selectedDirectory);
+        if (!await file.exists()) {
+           await file.writeAsBytes(fileBytes);
+        }
+        
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('File saved successfully!'),
+              backgroundColor: Color(0xFF00E676),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to export data: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
+  }
+
+  void _importCSV(BuildContext context, BudgetProvider provider) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final File file = File(result.files.single.path!);
+        final String csvString = await file.readAsString();
+        
+        List<List<dynamic>> rowsAsListOfValues = csv.decode(csvString);
+        
+        if (rowsAsListOfValues.length <= 1) return;
+
+        var dataRows = rowsAsListOfValues.skip(1);
+        List<Transaction> importedTxs = [];
+        
+        for (var row in dataRows) {
+          if (row.length < 6) continue;
+          
+          final String dateStr = row[0].toString();
+          final String typeStr = row[1].toString();
+          final double amount = double.tryParse(row[2].toString()) ?? 0.0;
+          final String rawCategory = row[3].toString();
+          final String name = row[4].toString();
+          final String notes = row[5].toString();
+
+          // Try to extract emoji
+          String catEmoji = '📦';
+          String catName = 'Imported';
+          
+          if (rawCategory.isNotEmpty) {
+            // Very naive split for our format "%emoji %name"
+            if (rawCategory.contains(' ')) {
+              final split = rawCategory.split(' ');
+              catEmoji = split.first;
+              catName = split.skip(1).join(' ');
+            } else {
+              catName = rawCategory;
+            }
+          }
+
+          // Match existing category
+          ExpenseCategory? category;
+          try {
+            category = provider.categories.firstWhere((c) => c.name.toLowerCase() == catName.toLowerCase());
+          } catch (_) {}
+
+          if (category == null) {
+            provider.addCategory(catName, catEmoji);
+            category = provider.categories.last;
+          }
+
+          importedTxs.add(Transaction(
+            id: '\${DateTime.now().millisecondsSinceEpoch}_\${importedTxs.length}',
+            name: name,
+            amount: amount,
+            category: category,
+            notes: notes,
+            date: DateTime.tryParse(dateStr) ?? DateTime.now(),
+            isIncome: typeStr.toLowerCase() == 'income'
+          ));
+        }
+
+        if (importedTxs.isNotEmpty) {
+          provider.addTransactions(importedTxs);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Successfully imported \${importedTxs.length} transactions!'),
+                backgroundColor: const Color(0xFF00E676),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        } else if (context.mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No valid transactions found in CSV.'), backgroundColor: Colors.orangeAccent),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to import data: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BudgetProvider>(context);
@@ -163,7 +319,13 @@ FontWeight.bold, letterSpacing: 1.0)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                   title: Text('Export Data (CSV)', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
                   trailing: Icon(Icons.download_rounded, color: hintColor),
-                  onTap: () {},
+                  onTap: () => _exportCSV(context, provider),
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  title: Text('Import Data (CSV)', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                  trailing: Icon(Icons.upload_rounded, color: hintColor),
+                  onTap: () => _importCSV(context, provider),
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 24),
