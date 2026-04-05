@@ -78,19 +78,21 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  static const defaultCurrencies = [
+    {'name': 'US Dollar', 'symbol': '\$'},
+    {'name': 'Euro', 'symbol': '€'},
+    {'name': 'British Pound', 'symbol': '£'},
+    {'name': 'Japanese Yen', 'symbol': '¥'},
+    {'name': 'Indian Rupee', 'symbol': '₹'},
+  ];
+
   void _showCurrencyDialog(BuildContext context) {
     final provider = Provider.of<BudgetProvider>(context, listen: false);
     final isDark = provider.isDarkMode;
     final surfaceColor = isDark ? const Color(0xFF151515) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black;
 
-    final currencies = [
-      {'name': 'US Dollar', 'symbol': '\$'},
-      {'name': 'Euro', 'symbol': '€'},
-      {'name': 'British Pound', 'symbol': '£'},
-      {'name': 'Japanese Yen', 'symbol': '¥'},
-      {'name': 'Indian Rupee', 'symbol': '₹'},
-    ];
+    final currencies = defaultCurrencies;
 
     showDialog(
       context: context,
@@ -306,7 +308,16 @@ FontWeight.bold, letterSpacing: 1.0)),
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                   title: Text('Currency', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
-                  trailing: Text(provider.currencySymbol, style: TextStyle(color: hintColor, fontSize: 16)),
+                  trailing: Text(
+                    () {
+                      final match = defaultCurrencies.cast<Map<String, String>>().firstWhere(
+                        (c) => c['symbol'] == provider.currencySymbol, 
+                        orElse: () => {'name': 'Unknown', 'symbol': provider.currencySymbol},
+                      );
+                      return '${match['name']} (${match['symbol']})';
+                    }(),
+                    style: TextStyle(color: hintColor, fontSize: 16),
+                  ),
                   onTap: () => _showCurrencyDialog(context),
                 ),
                 Divider(color: isDark ? Colors.white10 : Colors.black12),
@@ -314,6 +325,12 @@ FontWeight.bold, letterSpacing: 1.0)),
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Text('DATA', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: 
 FontWeight.bold, letterSpacing: 1.0)),
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  title: Text('Add Custom Category', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                  trailing: const Icon(Icons.add_circle_outline, color: Color(0xFF00E676)),
+                  onTap: () => _showAddCategoryDialog(context),
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -326,12 +343,6 @@ FontWeight.bold, letterSpacing: 1.0)),
                   title: Text('Import Data (CSV)', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
                   trailing: Icon(Icons.upload_rounded, color: hintColor),
                   onTap: () => _importCSV(context, provider),
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                  title: Text('Add Custom Category', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.add_circle_outline, color: Color(0xFF00E676)),
-                  onTap: () => _showAddCategoryDialog(context),
                 ),
               ],
             ),

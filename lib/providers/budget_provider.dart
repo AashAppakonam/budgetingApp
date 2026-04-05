@@ -129,6 +129,21 @@ class BudgetProvider extends ChangeNotifier {
     return map;
   }
 
+  List<Map<String, dynamic>> get categorySpentData {
+    final Map<String, Map<String, dynamic>> map = {};
+    for (var tx in _transactions.where((t) => !t.isIncome)) {
+      final key = tx.category.id;
+      if (!map.containsKey(key)) {
+        map[key] = {
+          'category': tx.category,
+          'amount': 0.0,
+        };
+      }
+      map[key]!['amount'] = (map[key]!['amount'] as double) + tx.amount;
+    }
+    return map.values.toList();
+  }
+
   // For Autofill
   List<String> get previousNames => _transactions.map((t) => t.name).toSet().toList();
 

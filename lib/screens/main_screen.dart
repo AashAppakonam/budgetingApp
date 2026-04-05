@@ -179,15 +179,15 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
+          tooltip: 'Settings',
+        ),
         title: const Text('Overview'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
-            tooltip: 'Settings',
-          ),
           IconButton(
             icon: const Icon(Icons.edit_calendar),
             onPressed: () => _showBudgetDialog(context),
@@ -221,11 +221,11 @@ class MainScreen extends StatelessWidget {
               // Pie Chart / Ring Graphic
               Center(
                 child: SizedBox(
-                  height: 220,
-                  width: 220,
+                  height: 260,
+                  width: 260,
                   child: CustomPaint(
                     painter: BudgetRingPainter(
-                      categorySpent: budgetState.categorySpent,
+                      categorySpent: budgetState.categorySpentData,
                       total: budgetState.totalBudget + budgetState.totalIncome,
                     ),
                     child: Center(
@@ -345,7 +345,17 @@ class MainScreen extends StatelessWidget {
                                 ),
                                 child: ListTile(
                                   contentPadding: EdgeInsets.zero,
-                                  leading: Text(tx.category.emoji, style: const TextStyle(fontSize: 22)),
+                                  leading: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Color(tx.category.colorValue).withOpacity(0.15),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Color(tx.category.colorValue), width: 1.5),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(tx.category.emoji, style: const TextStyle(fontSize: 20)),
+                                  ),
                                   title: Text(tx.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: textColor)),
                                   subtitle: Text(
                                     '${tx.category.name}  •  ${DateFormat('EEEE, MMMM d, yyyy').format(tx.date)}',
