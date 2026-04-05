@@ -1,0 +1,15 @@
+Budgeting App Project Structure
+
+lib/
+├── main.dart                      # Core app entry point & theme configuration
+├── models/
+│   ├── expense_category.dart      # Data model for transaction categories
+│   └── transaction.dart           # Data model for individual transactions
+├── providers/
+│   └── budget_provider.dart       # State management and shared_preferences persistence logic
+├── screens/
+│   ├── add_entry_screen.dart      # Screen for adding new expenses/incomes
+│   ├── main_screen.dart           # Main dashboard with pie chart and transaction list
+│   └── settings_screen.dart       # Settings screen for preferences and data reset
+└── widgets/
+    └── budget_ring_painter.dart   # Custom painter for the dynamic colored pie chart
