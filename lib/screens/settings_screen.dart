@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
@@ -13,9 +14,9 @@ import '../models/expense_category.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  void _showAddCategoryDialog(BuildContext context) {
-    final nameCtrl = TextEditingController();
-    final emojiCtrl = TextEditingController();
+  void _showAddCategoryDialog(BuildContext context, {ExpenseCategory? existingCategory}) {
+    final nameCtrl = TextEditingController(text: existingCategory?.name ?? '');
+    final emojiCtrl = TextEditingController(text: existingCategory?.emoji ?? '');
     
     final isDark = Provider.of<BudgetProvider>(context, listen: false).isDarkMode;
     final textColor = isDark ? Colors.white : Colors.black;
@@ -23,57 +24,129 @@ class SettingsScreen extends StatelessWidget {
     final dividerColor = isDark ? Colors.white24 : Colors.black26;
     final surfaceColor = isDark ? const Color(0xFF151515) : Colors.white;
 
+    Color selectedColor = existingCategory != null 
+        ? Color(existingCategory.colorValue) 
+        : const Color(0xFF00E676);
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text('New Category', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textColor)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: emojiCtrl,
-              style: TextStyle(fontSize: 18, color: textColor),
-              decoration: InputDecoration(
-                labelText: 'Emoji (e.g. ☕)',
-                labelStyle: TextStyle(color: hintColor),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
-                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
-              )
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: surfaceColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: Text(existingCategory == null ? 'New Category' : 'Edit Category', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textColor)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: emojiCtrl,
+                  style: TextStyle(fontSize: 18, color: textColor),
+                  decoration: InputDecoration(
+                    labelText: 'Emoji (e.g. ☕)',
+                    labelStyle: TextStyle(color: hintColor),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                  )
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: nameCtrl,
+                  style: TextStyle(fontSize: 18, color: textColor),
+                  decoration: InputDecoration(
+                    labelText: 'Category Name',
+                    labelStyle: TextStyle(color: hintColor),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                  )
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text('Color', style: TextStyle(color: hintColor, fontSize: 16)),
+                    const SizedBox(width: 15),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            Color tempColor = selectedColor;
+                            return AlertDialog(
+                              backgroundColor: surfaceColor,
+                              title: Text('Pick a color', style: TextStyle(color: textColor)),
+                              content: SingleChildScrollView(
+                                child: BlockPicker(
+                                  pickerColor: selectedColor,
+                                  onColorChanged: (color) => tempColor = color,
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Cancel', style: TextStyle(color: hintColor)),
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00E676),
+                                    foregroundColor: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedColor = tempColor;
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Select'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: selectedColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: dividerColor, width: 1),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: nameCtrl,
-              style: TextStyle(fontSize: 18, color: textColor),
-              decoration: InputDecoration(
-                labelText: 'Category Name',
-                labelStyle: TextStyle(color: hintColor),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
-                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
-              )
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: hintColor))),
-          ElevatedButton(
-             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00E676),
-              foregroundColor: Colors.black,
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () {
-              if (nameCtrl.text.isNotEmpty && emojiCtrl.text.isNotEmpty) {
-                Provider.of<BudgetProvider>(context, listen: false)
-                    .addCategory(nameCtrl.text, emojiCtrl.text);
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('Add', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: hintColor))),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00E676),
+                  foregroundColor: Colors.black,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: () {
+                  if (nameCtrl.text.isNotEmpty && emojiCtrl.text.isNotEmpty) {
+                    final provider = Provider.of<BudgetProvider>(context, listen: false);
+                    if (existingCategory != null) {
+                      provider.updateCategory(ExpenseCategory(
+                        id: existingCategory.id,
+                        name: nameCtrl.text,
+                        emoji: emojiCtrl.text,
+                        colorValue: selectedColor.value,
+                      ));
+                    } else {
+                      provider.addCategory(nameCtrl.text, emojiCtrl.text, selectedColor);
+                    }
+                  }
+                  Navigator.pop(context);
+                },
+                child: Text(existingCategory == null ? 'Add' : 'Save', style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -326,11 +399,84 @@ FontWeight.bold, letterSpacing: 1.0)),
                   child: Text('DATA', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: 
 FontWeight.bold, letterSpacing: 1.0)),
                 ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                  title: Text('Add Custom Category', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.add_circle_outline, color: Color(0xFF00E676)),
-                  onTap: () => _showAddCategoryDialog(context),
+                ExpansionTile(
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 24),
+                  title: Row(
+                    children: [
+                      Text('Manage Categories', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline, color: Color(0xFF00E676)),
+                        onPressed: () => _showAddCategoryDialog(context),
+                      ),
+                    ],
+                  ),
+                  iconColor: const Color(0xFF00E676),
+                  collapsedIconColor: hintColor,
+                  children: [
+                    ...provider.categories.map((cat) => ListTile(
+                      contentPadding: const EdgeInsets.only(left: 40, right: 24),
+                      leading: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Color(cat.colorValue).withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(cat.emoji, style: const TextStyle(fontSize: 18)),
+                      ),
+                      title: Text(cat.name, style: TextStyle(color: textColor)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit, color: hintColor, size: 20),
+                            onPressed: () => _showAddCategoryDialog(context, existingCategory: cat),
+                          ),
+                          if (provider.categories.length > 1)
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor: provider.isDarkMode ? const Color(0xFF151515) : Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    title: Text('Delete Category?', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
+                                    content: Text('Transactions in this category will be reassigned. Are you sure?', style: TextStyle(color: hintColor)),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, false),
+                                        child: Text('Cancel', style: TextStyle(color: hintColor)),
+                                      ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.redAccent,
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                        ),
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  provider.deleteCategory(cat.id);
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                    )).toList(),
+                    ListTile(
+                      contentPadding: const EdgeInsets.only(left: 40, right: 24),
+                      leading: const Icon(Icons.add_circle_outline, color: Color(0xFF00E676)),
+                      title: const Text('Add New Category', style: TextStyle(color: Color(0xFF00E676), fontWeight: FontWeight.w600)),
+                      onTap: () => _showAddCategoryDialog(context),
+                    ),
+                  ],
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 24),

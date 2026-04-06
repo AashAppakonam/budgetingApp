@@ -214,9 +214,9 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addCategory(String name, String emoji) {
+  void addCategory(String name, String emoji, [Color? selectedColor]) {
     final random = Random();
-    final color = Color.fromARGB(
+    final color = selectedColor ?? Color.fromARGB(
       255, 
       100 + random.nextInt(155), 
       100 + random.nextInt(155), 
@@ -229,6 +229,54 @@ class BudgetProvider extends ChangeNotifier {
       emoji: emoji,
       colorValue: color.value,
     ));
+    _saveData();
+    notifyListeners();
+  }
+
+  void updateCategory(ExpenseCategory updatedCategory) {
+    final index = _categories.indexWhere((c) => c.id == updatedCategory.id);
+    if (index >= 0) {
+      _categories[index] = updatedCategory;
+      // Update transactions attached to this category
+      for (int i = 0; i < _transactions.length; i++) {
+        if (_transactions[i].category.id == updatedCategory.id) {
+           _transactions[i] = Transaction(
+             id: _transactions[i].id,
+             name: _transactions[i].name,
+             amount: _transactions[i].amount,
+             category: updatedCategory,
+             notes: _transactions[i].notes,
+             date: _transactions[i].date,
+             isIncome: _transactions[i].isIncome,
+           );
+        }
+      }
+      _saveData();
+      notifyListeners();
+    }
+  }
+
+  void deleteCategory(String id) {
+    if (_categories.length <= 1) return; // Prevent deleting the last category
+
+    _categories.removeWhere((c) => c.id == id);
+    
+    // Assign orphaned transactions to the first available category
+    final fallbackCat = _categories.first;
+    for (int i = 0; i < _transactions.length; i++) {
+      if (_transactions[i].category.id == id) {
+        _transactions[i] = Transaction(
+          id: _transactions[i].id,
+          name: _transactions[i].name,
+          amount: _transactions[i].amount,
+          category: fallbackCat,
+          notes: _transactions[i].notes,
+          date: _transactions[i].date,
+          isIncome: _transactions[i].isIncome,
+        );
+      }
+    }
+
     _saveData();
     notifyListeners();
   }
