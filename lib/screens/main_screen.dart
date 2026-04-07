@@ -189,7 +189,7 @@ class MainScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_calendar),
+            icon: const Icon(Icons.monetization_on),
             onPressed: () => _showBudgetDialog(context),
             tooltip: 'Set Budget',
           ),
@@ -300,16 +300,17 @@ class MainScreen extends StatelessWidget {
                     ),
                     child: Center(
                       child: budgetState.totalBudget == 0
-                          ? ElevatedButton(
+                          ? ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF00E676),
                                 foregroundColor: Colors.black,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               ),
                               onPressed: () => _showBudgetDialog(context),
-                              child: const Text('Set Budget', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              icon: const Icon(Icons.monetization_on, size: 20),
+                              label: const Text('Set Budget', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                             )
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
