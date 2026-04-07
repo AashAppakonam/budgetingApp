@@ -179,19 +179,14 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
-          tooltip: 'Settings',
-        ),
         title: const Text('Overview'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.monetization_on),
-            onPressed: () => _showBudgetDialog(context),
-            tooltip: 'Set Budget',
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
+            tooltip: 'Settings',
           ),
           const SizedBox(width: 8),
         ],
@@ -277,12 +272,22 @@ class MainScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('Base Budget', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.normal)),
-                        Text('${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
-                      ],
+                    GestureDetector(
+                      onTap: () => _showBudgetDialog(context),
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('Base Budget', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.normal)),
+                              Text('${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
+                            ],
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(Icons.monetization_on, color: hintColor, size: 26),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -299,37 +304,46 @@ class MainScreen extends StatelessWidget {
                       total: budgetState.totalBudget + budgetState.totalIncome,
                     ),
                     child: Center(
-                      child: budgetState.totalBudget == 0
-                          ? ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00E676),
-                                foregroundColor: Colors.black,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              ),
-                              onPressed: () => _showBudgetDialog(context),
-                              icon: const Icon(Icons.monetization_on, size: 20),
-                              label: const Text('Set Budget', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Remaining', style: TextStyle(color: hintColor, fontSize: 14, letterSpacing: 1.0)),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${budgetState.currencySymbol}${budgetState.remainingBudget.toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -1.5,
-                                    color: budgetState.remainingBudget >= 0
-                                        ? textColor
-                                        : Colors.redAccent,
-                                  ),
+                      child: SizedBox(
+                        width: 160,
+                        child: budgetState.totalBudget == 0
+                            ? ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF00E676),
+                                  foregroundColor: Colors.black,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 ),
-                              ],
-                            ),
+                                onPressed: () => _showBudgetDialog(context),
+                                icon: const Icon(Icons.monetization_on, size: 20),
+                                label: const Text('Set Budget', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('Remaining', style: TextStyle(color: hintColor, fontSize: 14, letterSpacing: 1.0)),
+                                  const SizedBox(height: 4),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        '${budgetState.currencySymbol}${budgetState.remainingBudget.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -1.5,
+                                          color: budgetState.remainingBudget >= 0
+                                              ? textColor
+                                              : Colors.redAccent,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
                     ),
                   ),
                 ),
