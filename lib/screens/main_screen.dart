@@ -285,7 +285,7 @@ class MainScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(width: 8),
-                          Icon(Icons.monetization_on, color: hintColor, size: 26),
+                          Icon(Icons.monetization_on, color: hintColor, size: 28),
                         ],
                       ),
                     ),

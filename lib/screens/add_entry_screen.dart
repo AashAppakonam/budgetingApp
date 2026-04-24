@@ -402,10 +402,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                         borderSide: BorderSide(color: Color(0xFF00E676)),
                       ),
                     ),
+                    isExpanded: true,
                     items: provider.categories.map((cat) {
                       return DropdownMenuItem(
                         value: cat,
-                        child: Text('${cat.emoji}  ${cat.name}'),
+                        child: Text(
+                          '${cat.emoji}  ${cat.name}',
+                          style: const TextStyle(),
+                        ),
                       );
                     }).toList(),
                     onChanged: (val) {

@@ -424,7 +424,7 @@ FontWeight.bold, letterSpacing: 1.0)),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
-                        child: Text(cat.emoji, style: const TextStyle(fontSize: 18)),
+                        child: Text(cat.emoji, style: const TextStyle(fontSize: 18, )),
                       ),
                       title: Text(cat.name, style: TextStyle(color: textColor)),
                       trailing: Row(
