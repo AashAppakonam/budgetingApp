@@ -41,6 +41,12 @@ class BudgetProvider extends ChangeNotifier {
     // Load Budget
     _totalBudget = prefs.getDouble('totalBudget') ?? 0.0;
 
+    // Load Filters
+    final startId = prefs.getString('filterStartDate');
+    if (startId != null) _filterStartDate = DateTime.parse(startId);
+    final endId = prefs.getString('filterEndDate');
+    if (endId != null) _filterEndDate = DateTime.parse(endId);
+
     // Load Categories
     final categoriesString = prefs.getString('categories');
     if (categoriesString != null) {
@@ -65,6 +71,18 @@ class BudgetProvider extends ChangeNotifier {
     await prefs.setString('currencySymbol', _currencySymbol);
     await prefs.setDouble('totalBudget', _totalBudget);
     
+    if (_filterStartDate != null) {
+      await prefs.setString('filterStartDate', _filterStartDate!.toIso8601String());
+    } else {
+      await prefs.remove('filterStartDate');
+    }
+
+    if (_filterEndDate != null) {
+      await prefs.setString('filterEndDate', _filterEndDate!.toIso8601String());
+    } else {
+      await prefs.remove('filterEndDate');
+    }
+    
     final categoriesJson = json.encode(_categories.map((c) => c.toJson()).toList());
     await prefs.setString('categories', categoriesJson);
     
@@ -82,6 +100,7 @@ class BudgetProvider extends ChangeNotifier {
   void setDateRange(DateTime? start, DateTime? end) {
     _filterStartDate = start;
     _filterEndDate = end;
+    _saveData();
     notifyListeners();
   }
 

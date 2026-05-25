@@ -11,8 +11,10 @@ class MainScreen extends StatelessWidget {
 
   void _showBudgetDialog(BuildContext context) {
     final provider = Provider.of<BudgetProvider>(context, listen: false);
-    final controller = TextEditingController(text: provider.totalBudget.toString());
-    
+    final controller = TextEditingController(
+      text: provider.totalBudget.toString(),
+    );
+
     final isDark = provider.isDarkMode;
     final textColor = isDark ? Colors.white : Colors.black;
     final hintColor = isDark ? Colors.white54 : Colors.black54;
@@ -24,16 +26,35 @@ class MainScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text('Set Monthly Budget', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textColor)),
+        title: Text(
+          'Set Monthly Budget',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: textColor,
+          ),
+        ),
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
           decoration: InputDecoration(
             prefixText: '${provider.currencySymbol} ',
-            prefixStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: hintColor),
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
-            focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+            prefixStyle: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: hintColor,
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: dividerColor),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF00E676)),
+            ),
           ),
         ),
         actions: [
@@ -42,11 +63,13 @@ class MainScreen extends StatelessWidget {
             child: Text('Cancel', style: TextStyle(color: hintColor)),
           ),
           ElevatedButton(
-             style: ElevatedButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF00E676),
               foregroundColor: Colors.black,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () {
               if (controller.text.isNotEmpty) {
@@ -54,7 +77,10 @@ class MainScreen extends StatelessWidget {
               }
               Navigator.pop(context);
             },
-            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Save',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -65,7 +91,7 @@ class MainScreen extends StatelessWidget {
     final provider = Provider.of<BudgetProvider>(context, listen: false);
     SortOption tempSort = provider.currentSort;
     String? tempCategory = provider.filterCategoryId;
-    
+
     final isDark = provider.isDarkMode;
     final textColor = isDark ? Colors.white : Colors.black;
     final hintColor = isDark ? Colors.white54 : Colors.black54;
@@ -76,17 +102,19 @@ class MainScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: surfaceColor,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       isScrollControlled: true,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return Padding(
               padding: EdgeInsets.only(
-                top: 24.0, 
-                left: 24.0, 
-                right: 24.0, 
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24.0
+                top: 24.0,
+                left: 24.0,
+                right: 24.0,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24.0,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -95,8 +123,16 @@ class MainScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Sort & Filter', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-                      if (tempSort != SortOption.dateDesc || tempCategory != null)
+                      Text(
+                        'Sort & Filter',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (tempSort != SortOption.dateDesc ||
+                          tempCategory != null)
                         TextButton(
                           onPressed: () {
                             setState(() {
@@ -104,48 +140,102 @@ class MainScreen extends StatelessWidget {
                               tempCategory = null;
                             });
                           },
-                          style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(50, 30), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                          child: const Text('Clear All', style: TextStyle(color: Colors.redAccent, fontSize: 14)),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(50, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Clear All',
+                            style: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 30),
-                  Text('Sort By', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                  Text(
+                    'Sort By',
+                    style: TextStyle(
+                      color: hintColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<SortOption>(
                     value: tempSort,
                     icon: Icon(Icons.keyboard_arrow_down, color: hintColor),
                     dropdownColor: popUpColor,
                     decoration: InputDecoration(
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
-                      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: dividerColor),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF00E676)),
+                      ),
                     ),
                     style: TextStyle(color: textColor, fontSize: 16),
                     items: const [
-                      DropdownMenuItem(value: SortOption.dateDesc, child: Text('Date: Newest First')),
-                      DropdownMenuItem(value: SortOption.dateAsc, child: Text('Date: Oldest First')),
-                      DropdownMenuItem(value: SortOption.amountDesc, child: Text('Amount: Highest First')),
-                      DropdownMenuItem(value: SortOption.amountAsc, child: Text('Amount: Lowest First')),
+                      DropdownMenuItem(
+                        value: SortOption.dateDesc,
+                        child: Text('Date: Newest First'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortOption.dateAsc,
+                        child: Text('Date: Oldest First'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortOption.amountDesc,
+                        child: Text('Amount: Highest First'),
+                      ),
+                      DropdownMenuItem(
+                        value: SortOption.amountAsc,
+                        child: Text('Amount: Lowest First'),
+                      ),
                     ],
                     onChanged: (val) {
                       if (val != null) setState(() => tempSort = val);
                     },
                   ),
                   const SizedBox(height: 30),
-                  Text('Filter by Category', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                  Text(
+                    'Filter by Category',
+                    style: TextStyle(
+                      color: hintColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String?>(
                     value: tempCategory,
                     icon: Icon(Icons.keyboard_arrow_down, color: hintColor),
                     dropdownColor: popUpColor,
                     decoration: InputDecoration(
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
-                      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF00E676))),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: dividerColor),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF00E676)),
+                      ),
                     ),
                     style: TextStyle(color: textColor, fontSize: 16),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('All Categories')),
-                      ...provider.categories.map((c) => DropdownMenuItem(value: c.id, child: Text('${c.emoji}  ${c.name}'))),
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All Categories'),
+                      ),
+                      ...provider.categories.map(
+                        (c) => DropdownMenuItem(
+                          value: c.id,
+                          child: Text('${c.emoji}  ${c.name}'),
+                        ),
+                      ),
                     ],
                     onChanged: (val) {
                       setState(() => tempCategory = val);
@@ -158,13 +248,22 @@ class MainScreen extends StatelessWidget {
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     onPressed: () {
                       provider.setSortAndFilter(tempSort, tempCategory);
                       Navigator.pop(context);
                     },
-                    child: const Text('APPLY', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 1.0)),
+                    child: const Text(
+                      'APPLY',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -185,7 +284,10 @@ class MainScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            ),
             tooltip: 'Settings',
           ),
           const SizedBox(width: 8),
@@ -197,54 +299,107 @@ class MainScreen extends StatelessWidget {
           final textColor = isDark ? Colors.white : Colors.black;
           final hintColor = isDark ? Colors.white54 : Colors.black54;
           final dividerColor = isDark ? Colors.white24 : Colors.black26;
-          final bgContainerColor = isDark ? Colors.black : const Color(0xFFF5F5F5);
+          final bgContainerColor = isDark
+              ? Colors.black
+              : const Color(0xFFF5F5F5);
           final surfaceColor = isDark ? const Color(0xFF151515) : Colors.white;
 
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 10.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IntrinsicWidth(
                       child: InkWell(
                         onTap: () async {
-                          final DateTimeRange? picked = await showDateRangePicker(
+                          final DateTimeRange?
+                          picked = await showDateRangePicker(
                             context: context,
-                            initialDateRange: budgetState.filterStartDate != null && budgetState.filterEndDate != null 
-                                ? DateTimeRange(start: budgetState.filterStartDate!, end: budgetState.filterEndDate!)
+                            initialDateRange:
+                                budgetState.filterStartDate != null &&
+                                    budgetState.filterEndDate != null
+                                ? DateTimeRange(
+                                    start: budgetState.filterStartDate!,
+                                    end: budgetState.filterEndDate!,
+                                  )
                                 : null,
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2100),
                             builder: (context, child) {
                               return Theme(
                                 data: Theme.of(context).copyWith(
-                                  colorScheme: isDark 
-                                    ? const ColorScheme.dark(
-                                        primary: Color(0xFF00E676),
-                                        onPrimary: Colors.black,
-                                        surface: Color(0xFF151515),
-                                        onSurface: Colors.white,
-                                      )
-                                    : const ColorScheme.light(
-                                        primary: Color(0xFF00E676),
-                                        onPrimary: Colors.white,
-                                        surface: Colors.white,
-                                        onSurface: Colors.black,
-                                      ),
+                                  colorScheme: isDark
+                                      ? const ColorScheme.dark(
+                                          primary: Color(0xFF00E676),
+                                          onPrimary: Colors.black,
+                                          surface: Color(0xFF151515),
+                                          onSurface: Colors.white,
+                                        )
+                                      : const ColorScheme.light(
+                                          primary: Color(0xFF00E676),
+                                          onPrimary: Colors.white,
+                                          surface: Colors.white,
+                                          onSurface: Colors.black,
+                                        ),
                                 ),
-                                child: child!,
+                                child: Stack(
+                                  children: [
+                                    child!,
+                                    Positioned(
+                                      top: 4,
+                                      right:
+                                          70, // Positioned near the Save/Close buttons in the app bar
+                                      child: SafeArea(
+                                        child: TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(
+                                              DateTimeRange(
+                                                start: DateTime(
+                                                  1970,
+                                                ), // Magic date to indicate reset
+                                                end: DateTime(1970),
+                                              ),
+                                            );
+                                          },
+                                          style: TextButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                            ),
+                                            foregroundColor: isDark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          child: const Text('RESET'),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           );
                           if (picked != null) {
-                            budgetState.setDateRange(picked.start, picked.end);
+                            if (picked.start == DateTime(1970)) {
+                              budgetState.setDateRange(null, null);
+                            } else {
+                              budgetState.setDateRange(
+                                picked.start,
+                                picked.end,
+                              );
+                            }
                           }
                         },
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: surfaceColor,
                             borderRadius: BorderRadius.circular(8),
@@ -252,21 +407,35 @@ class MainScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.date_range, size: 16, color: hintColor),
+                              Icon(
+                                Icons.date_range,
+                                size: 16,
+                                color: hintColor,
+                              ),
                               const SizedBox(width: 6),
                               Text(
-                                budgetState.filterStartDate != null && budgetState.filterEndDate != null
+                                budgetState.filterStartDate != null &&
+                                        budgetState.filterEndDate != null
                                     ? '${DateFormat('MMM d').format(budgetState.filterStartDate!)} - ${DateFormat('MMM d').format(budgetState.filterEndDate!)}'
                                     : 'All Time',
-                                style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               if (budgetState.filterStartDate != null) ...[
                                 const SizedBox(width: 4),
                                 GestureDetector(
-                                  onTap: () => budgetState.setDateRange(null, null),
-                                  child: Icon(Icons.close, size: 16, color: hintColor),
+                                  onTap: () =>
+                                      budgetState.setDateRange(null, null),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: hintColor,
+                                  ),
                                 ),
-                              ]
+                              ],
                             ],
                           ),
                         ),
@@ -280,12 +449,30 @@ class MainScreen extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text('Base Budget', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.normal)),
-                              Text('${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
+                              Text(
+                                'Base Budget',
+                                style: TextStyle(
+                                  color: hintColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                '${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(width: 8),
-                          Icon(Icons.monetization_on, color: hintColor, size: 28),
+                          Icon(
+                            Icons.monetization_on,
+                            color: hintColor,
+                            size: 28,
+                          ),
                         ],
                       ),
                     ),
@@ -312,20 +499,43 @@ class MainScreen extends StatelessWidget {
                                   backgroundColor: const Color(0xFF00E676),
                                   foregroundColor: Colors.black,
                                   elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
                                 ),
                                 onPressed: () => _showBudgetDialog(context),
-                                icon: const Icon(Icons.monetization_on, size: 20),
-                                label: const Text('Set Budget', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                icon: const Icon(
+                                  Icons.monetization_on,
+                                  size: 20,
+                                ),
+                                label: const Text(
+                                  'Set Budget',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
                               )
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text('Remaining', style: TextStyle(color: hintColor, fontSize: 14, letterSpacing: 1.0)),
+                                  Text(
+                                    'Remaining',
+                                    style: TextStyle(
+                                      color: hintColor,
+                                      fontSize: 14,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
                                   const SizedBox(height: 4),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                    ),
                                     child: FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(
@@ -334,7 +544,8 @@ class MainScreen extends StatelessWidget {
                                           fontSize: 36,
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: -1.5,
-                                          color: budgetState.remainingBudget >= 0
+                                          color:
+                                              budgetState.remainingBudget >= 0
                                               ? textColor
                                               : Colors.redAccent,
                                         ),
@@ -351,11 +562,22 @@ class MainScreen extends StatelessWidget {
               const SizedBox(height: 30),
               // Transaction Log Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('TRANSACTIONS', style: TextStyle(color: hintColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                    Text(
+                      'TRANSACTIONS',
+                      style: TextStyle(
+                        color: hintColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
                     GestureDetector(
                       onTap: () => _showSortFilterDialog(context),
                       child: Row(
@@ -363,11 +585,20 @@ class MainScreen extends StatelessWidget {
                           if (budgetState.hasActiveSortOrFilter)
                             const Padding(
                               padding: EdgeInsets.only(right: 6.0),
-                              child: Text('Filtered', style: TextStyle(color: Color(0xFF00E676), fontSize: 12, fontWeight: FontWeight.bold)),
+                              child: Text(
+                                'Filtered',
+                                style: TextStyle(
+                                  color: Color(0xFF00E676),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           Icon(
-                            Icons.filter_list, 
-                            color: budgetState.hasActiveSortOrFilter ? const Color(0xFF00E676) : hintColor,
+                            Icons.filter_list,
+                            color: budgetState.hasActiveSortOrFilter
+                                ? const Color(0xFF00E676)
+                                : hintColor,
                             size: 20,
                           ),
                         ],
@@ -381,7 +612,12 @@ class MainScreen extends StatelessWidget {
                 child: Container(
                   color: bgContainerColor,
                   child: budgetState.transactions.isEmpty
-                      ? Center(child: Text('No entries found.', style: TextStyle(color: hintColor)))
+                      ? Center(
+                          child: Text(
+                            'No entries found.',
+                            style: TextStyle(color: hintColor),
+                          ),
+                        )
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           itemCount: budgetState.transactions.length,
@@ -393,7 +629,10 @@ class MainScreen extends StatelessWidget {
                                 color: Colors.redAccent,
                                 alignment: Alignment.centerRight,
                                 padding: const EdgeInsets.only(right: 20),
-                                child: const Icon(Icons.delete, color: Colors.white),
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                ),
                               ),
                               direction: DismissDirection.endToStart,
                               confirmDismiss: (direction) async {
@@ -401,32 +640,63 @@ class MainScreen extends StatelessWidget {
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     backgroundColor: surfaceColor,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    title: Text('Delete Entry?', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
-                                    content: Text('Are you sure you want to remove this transaction?', style: TextStyle(color: hintColor)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    title: Text(
+                                      'Delete Entry?',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      'Are you sure you want to remove this transaction?',
+                                      style: TextStyle(color: hintColor),
+                                    ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context, false),
-                                        child: Text('Cancel', style: TextStyle(color: hintColor)),
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(color: hintColor),
+                                        ),
                                       ),
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.redAccent,
                                           foregroundColor: Colors.white,
                                           elevation: 0,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
                                         ),
-                                        onPressed: () => Navigator.pop(context, true),
-                                        child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 );
                               },
-                              onDismissed: (_) => budgetState.deleteTransaction(tx.id),
+                              onDismissed: (_) =>
+                                  budgetState.deleteTransaction(tx.id),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  border: Border(bottom: BorderSide(color: dividerColor, width: 1)),
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: dividerColor,
+                                      width: 1,
+                                    ),
+                                  ),
                                 ),
                                 child: ListTile(
                                   contentPadding: EdgeInsets.zero,
@@ -434,32 +704,56 @@ class MainScreen extends StatelessWidget {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: Color(tx.category.colorValue).withOpacity(0.15),
+                                      color: Color(
+                                        tx.category.colorValue,
+                                      ).withOpacity(0.15),
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: Color(tx.category.colorValue), width: 1.5),
+                                      border: Border.all(
+                                        color: Color(tx.category.colorValue),
+                                        width: 1.5,
+                                      ),
                                     ),
                                     alignment: Alignment.center,
-                                    child: Text(tx.category.emoji, style: const TextStyle(fontSize: 20)),
+                                    child: Text(
+                                      tx.category.emoji,
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
                                   ),
-                                  title: Text(tx.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: textColor)),
+                                  title: Text(
+                                    tx.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: textColor,
+                                    ),
+                                  ),
                                   subtitle: Text(
                                     '${tx.category.name}  •  ${DateFormat('EEEE, MMMM d, yyyy').format(tx.date)}',
-                                    style: TextStyle(color: hintColor, fontSize: 13),
+                                    style: TextStyle(
+                                      color: hintColor,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                   trailing: Text(
-                                    tx.isIncome ? '+${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}' : '-${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}',
+                                    tx.isIncome
+                                        ? '+${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}'
+                                        : '-${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w700, 
-                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+q                                      fontSize: 16,
                                       letterSpacing: -0.5,
-                                      color: tx.isIncome ? const Color(0xFF00E676) : textColor,
+                                      color: tx.isIncome
+                                          ? const Color(0xFF00E676)
+                                          : textColor,
                                     ),
                                   ),
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => AddEntryScreen(existingTransaction: tx),
+                                        builder: (context) => AddEntryScreen(
+                                          existingTransaction: tx,
+                                        ),
                                       ),
                                     );
                                   },
@@ -480,8 +774,24 @@ class MainScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('TOTAL SPENT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0)),
-                          Text('${budgetState.currencySymbol}${budgetState.totalSpent.toStringAsFixed(2)}', style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
+                          const Text(
+                            'TOTAL SPENT',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          Text(
+                            '${budgetState.currencySymbol}${budgetState.totalSpent.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -499,9 +809,18 @@ class MainScreen extends StatelessWidget {
                           ),
                           onPressed: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const AddEntryScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => const AddEntryScreen(),
+                            ),
                           ),
-                          child: const Text('ADD ENTRY', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: 1.0)),
+                          child: const Text(
+                            'ADD ENTRY',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
