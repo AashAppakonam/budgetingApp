@@ -106,5 +106,44 @@ class BudgetRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant BudgetRingPainter oldDelegate) {
+    return oldDelegate.total != total || oldDelegate.categorySpent != categorySpent;
+  }
+
+  String? getCategoryIdAt(Offset localPosition, Size size) {
+    if (total <= 0) return null;
+
+    double strokeWidth = 20.0;
+    Offset center = Offset(size.width / 2, size.height / 2);
+    double radius = (size.width - strokeWidth) / 2 - 25;
+
+    // Optional: Only allow taps roughly on or near the ring
+    double distance = (localPosition - center).distance;
+    if (distance > radius + strokeWidth + 40 || distance < radius - strokeWidth - 40) {
+      return null; // Tapped too far from the ring
+    }
+
+    double dx = localPosition.dx - center.dx;
+    double dy = localPosition.dy - center.dy;
+    double tapAngle = atan2(dy, dx);
+    
+    // Normalize tap angle to start at top (-pi/2) like the drawing does
+    double normalizedTapAngle = tapAngle - (-pi / 2);
+    if (normalizedTapAngle < 0) normalizedTapAngle += 2 * pi;
+
+    double currentAngle = 0;
+    for (var catData in categorySpent) {
+      final amount = catData['amount'] as double;
+      if (amount <= 0) continue;
+      
+      double spentPercentage = (amount / total).clamp(0.0, 1.0);
+      double sweepAngle = 2 * pi * spentPercentage;
+      
+      if (normalizedTapAngle >= currentAngle && normalizedTapAngle <= currentAngle + sweepAngle) {
+         return catData['category'].id;
+      }
+      currentAngle += sweepAngle;
+    }
+    return null;
+  }
 }

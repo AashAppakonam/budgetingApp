@@ -495,85 +495,109 @@ class MainScreen extends StatelessWidget {
                           child: SizedBox(
                             height: 260,
                             width: 260,
-                            child: CustomPaint(
-                              painter: BudgetRingPainter(
-                                categorySpent: budgetState.categorySpentData,
-                                total:
-                                    budgetState.totalBudget +
-                                    budgetState.totalIncome,
-                              ),
-                              child: Center(
-                                child: SizedBox(
-                                  width: 160,
-                                  child: budgetState.totalBudget == 0
-                                      ? ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(
-                                              0xFF00E676,
-                                            ),
-                                            foregroundColor: Colors.black,
-                                            elevation: 0,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 10,
-                                            ),
-                                          ),
-                                          onPressed: () =>
-                                              _showBudgetDialog(context),
-                                          icon: const Icon(
-                                            Icons.monetization_on,
-                                            size: 20,
-                                          ),
-                                          label: const Text(
-                                            'Set Budget',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )
-                                      : Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Remaining',
-                                              style: TextStyle(
-                                                color: hintColor,
-                                                fontSize: 14,
-                                                letterSpacing: 1.0,
+                            child: GestureDetector(
+                              onTapUp: (details) {
+                                final painter = BudgetRingPainter(
+                                  categorySpent: budgetState.categorySpentData,
+                                  total:
+                                      budgetState.totalBudget +
+                                      budgetState.totalIncome,
+                                );
+                                final tappedCategoryId = painter
+                                    .getCategoryIdAt(
+                                      details.localPosition,
+                                      const Size(260, 260),
+                                    );
+                                if (tappedCategoryId != null) {
+                                  // Set category filter but keep sort the same
+                                  budgetState.setSortAndFilter(
+                                    budgetState.currentSort,
+                                    tappedCategoryId,
+                                  );
+                                }
+                              },
+                              child: CustomPaint(
+                                painter: BudgetRingPainter(
+                                  categorySpent: budgetState.categorySpentData,
+                                  total:
+                                      budgetState.totalBudget +
+                                      budgetState.totalIncome,
+                                ),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 160,
+                                    child: budgetState.totalBudget == 0
+                                        ? ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(
+                                                0xFF00E676,
                                               ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Padding(
+                                              foregroundColor: Colors.black,
+                                              elevation: 0,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 16.0,
+                                                    horizontal: 12,
+                                                    vertical: 10,
                                                   ),
-                                              child: FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                child: Text(
-                                                  '${budgetState.currencySymbol}${budgetState.remainingBudget.toStringAsFixed(2)}',
-                                                  style: TextStyle(
-                                                    fontSize: 36,
-                                                    fontWeight: FontWeight.w800,
-                                                    letterSpacing: -1.5,
-                                                    color:
-                                                        budgetState
-                                                                .remainingBudget >=
-                                                            0
-                                                        ? textColor
-                                                        : Colors.redAccent,
+                                            ),
+                                            onPressed: () =>
+                                                _showBudgetDialog(context),
+                                            icon: const Icon(
+                                              Icons.monetization_on,
+                                              size: 20,
+                                            ),
+                                            label: const Text(
+                                              'Set Budget',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          )
+                                        : Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Remaining',
+                                                style: TextStyle(
+                                                  color: hintColor,
+                                                  fontSize: 14,
+                                                  letterSpacing: 1.0,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16.0,
+                                                    ),
+                                                child: FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  child: Text(
+                                                    '${budgetState.currencySymbol}${budgetState.remainingBudget.toStringAsFixed(2)}',
+                                                    style: TextStyle(
+                                                      fontSize: 36,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      letterSpacing: -1.5,
+                                                      color:
+                                                          budgetState
+                                                                  .remainingBudget >=
+                                                              0
+                                                          ? textColor
+                                                          : Colors.redAccent,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
+                                            ],
+                                          ),
+                                  ),
                                 ),
                               ),
                             ),
