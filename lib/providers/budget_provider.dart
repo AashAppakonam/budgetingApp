@@ -158,6 +158,7 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   double get totalSpent => _dateFilteredTransactions.where((t) => !t.isIncome).fold(0, (sum, item) => sum + item.amount);
+  double get filteredTotalSpent => transactions.where((t) => !t.isIncome).fold(0, (sum, item) => sum + item.amount);
   double get totalIncome => _dateFilteredTransactions.where((t) => t.isIncome).fold(0, (sum, item) => sum + item.amount);
   double get remainingBudget => _totalBudget + totalIncome - totalSpent;
 

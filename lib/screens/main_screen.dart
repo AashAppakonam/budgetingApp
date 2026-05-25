@@ -921,7 +921,7 @@ class MainScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${budgetState.currencySymbol}${budgetState.totalSpent.toStringAsFixed(2)}',
+                            '${budgetState.currencySymbol}${budgetState.filteredTotalSpent.toStringAsFixed(2)}',
                             style: TextStyle(
                               color: textColor,
                               fontSize: 16,
