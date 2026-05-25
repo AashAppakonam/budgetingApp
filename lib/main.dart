@@ -21,7 +21,7 @@ class BudgetApp extends StatelessWidget {
     final isDark = context.watch<BudgetProvider>().isDarkMode;
 
     return MaterialApp(
-      title: 'Minimal Budget',
+      title: 'Monest',
       theme: isDark
           ? ThemeData(
               brightness: Brightness.dark,
