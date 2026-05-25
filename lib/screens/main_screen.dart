@@ -306,462 +306,575 @@ class MainScreen extends StatelessWidget {
 
           return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 10.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Expanded(
+                child: Stack(
                   children: [
-                    IntrinsicWidth(
-                      child: InkWell(
-                        onTap: () async {
-                          final DateTimeRange?
-                          picked = await showDateRangePicker(
-                            context: context,
-                            initialDateRange:
-                                budgetState.filterStartDate != null &&
-                                    budgetState.filterEndDate != null
-                                ? DateTimeRange(
-                                    start: budgetState.filterStartDate!,
-                                    end: budgetState.filterEndDate!,
-                                  )
-                                : null,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                            builder: (context, child) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  colorScheme: isDark
-                                      ? const ColorScheme.dark(
-                                          primary: Color(0xFF00E676),
-                                          onPrimary: Colors.black,
-                                          surface: Color(0xFF151515),
-                                          onSurface: Colors.white,
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                            vertical: 10.0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IntrinsicWidth(
+                                child: InkWell(
+                                  onTap: () async {
+                                    final DateTimeRange?
+                                    picked = await showDateRangePicker(
+                                      context: context,
+                                      initialDateRange:
+                                          budgetState.filterStartDate != null &&
+                                              budgetState.filterEndDate != null
+                                          ? DateTimeRange(
+                                              start:
+                                                  budgetState.filterStartDate!,
+                                              end: budgetState.filterEndDate!,
+                                            )
+                                          : null,
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                      builder: (context, child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: isDark
+                                                ? const ColorScheme.dark(
+                                                    primary: Color(0xFF00E676),
+                                                    onPrimary: Colors.black,
+                                                    surface: Color(0xFF151515),
+                                                    onSurface: Colors.white,
+                                                  )
+                                                : const ColorScheme.light(
+                                                    primary: Color(0xFF00E676),
+                                                    onPrimary: Colors.white,
+                                                    surface: Colors.white,
+                                                    onSurface: Colors.black,
+                                                  ),
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              child!,
+                                              Positioned(
+                                                top: 4,
+                                                right:
+                                                    70, // Positioned near the Save/Close buttons in the app bar
+                                                child: SafeArea(
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        DateTimeRange(
+                                                          start: DateTime(
+                                                            1970,
+                                                          ), // Magic date to indicate reset
+                                                          end: DateTime(1970),
+                                                        ),
+                                                      );
+                                                    },
+                                                    style: TextButton.styleFrom(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 16,
+                                                          ),
+                                                      foregroundColor: isDark
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                    ),
+                                                    child: const Text('RESET'),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                    if (picked != null) {
+                                      if (picked.start == DateTime(1970)) {
+                                        budgetState.setDateRange(null, null);
+                                      } else {
+                                        budgetState.setDateRange(
+                                          picked.start,
+                                          picked.end,
+                                        );
+                                      }
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: surfaceColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: dividerColor),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.date_range,
+                                          size: 16,
+                                          color: hintColor,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          budgetState.filterStartDate != null &&
+                                                  budgetState.filterEndDate !=
+                                                      null
+                                              ? '${DateFormat('MMM d').format(budgetState.filterStartDate!)} - ${DateFormat('MMM d').format(budgetState.filterEndDate!)}'
+                                              : 'All Time',
+                                          style: TextStyle(
+                                            color: textColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        if (budgetState.filterStartDate !=
+                                            null) ...[
+                                          const SizedBox(width: 4),
+                                          GestureDetector(
+                                            onTap: () => budgetState
+                                                .setDateRange(null, null),
+                                            child: Icon(
+                                              Icons.close,
+                                              size: 16,
+                                              color: hintColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => _showBudgetDialog(context),
+                                behavior: HitTestBehavior.opaque,
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Base Budget',
+                                          style: TextStyle(
+                                            color: hintColor,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: textColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      Icons.monetization_on,
+                                      color: hintColor,
+                                      size: 28,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        // Pie Chart / Ring Graphic
+                        Center(
+                          child: SizedBox(
+                            height: 260,
+                            width: 260,
+                            child: CustomPaint(
+                              painter: BudgetRingPainter(
+                                categorySpent: budgetState.categorySpentData,
+                                total:
+                                    budgetState.totalBudget +
+                                    budgetState.totalIncome,
+                              ),
+                              child: Center(
+                                child: SizedBox(
+                                  width: 160,
+                                  child: budgetState.totalBudget == 0
+                                      ? ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(
+                                              0xFF00E676,
+                                            ),
+                                            foregroundColor: Colors.black,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              _showBudgetDialog(context),
+                                          icon: const Icon(
+                                            Icons.monetization_on,
+                                            size: 20,
+                                          ),
+                                          label: const Text(
+                                            'Set Budget',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
                                         )
-                                      : const ColorScheme.light(
-                                          primary: Color(0xFF00E676),
-                                          onPrimary: Colors.white,
-                                          surface: Colors.white,
-                                          onSurface: Colors.black,
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Remaining',
+                                              style: TextStyle(
+                                                color: hintColor,
+                                                fontSize: 14,
+                                                letterSpacing: 1.0,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16.0,
+                                                  ),
+                                              child: FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  '${budgetState.currencySymbol}${budgetState.remainingBudget.toStringAsFixed(2)}',
+                                                  style: TextStyle(
+                                                    fontSize: 36,
+                                                    fontWeight: FontWeight.w800,
+                                                    letterSpacing: -1.5,
+                                                    color:
+                                                        budgetState
+                                                                .remainingBudget >=
+                                                            0
+                                                        ? textColor
+                                                        : Colors.redAccent,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                 ),
-                                child: Stack(
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                    DraggableScrollableSheet(
+                      initialChildSize: 0.47,
+                      minChildSize: 0.25,
+                      maxChildSize: 0.95,
+                      builder: (context, scrollController) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: bgContainerColor,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(24),
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 10,
+                                offset: Offset(0, -2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Center(
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                    top: 12,
+                                    bottom: 4,
+                                  ),
+                                  height: 4,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    color: dividerColor,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                              // Transaction Log Header
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24.0,
+                                  vertical: 8.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    child!,
-                                    Positioned(
-                                      top: 4,
-                                      right:
-                                          70, // Positioned near the Save/Close buttons in the app bar
-                                      child: SafeArea(
-                                        child: TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop(
-                                              DateTimeRange(
-                                                start: DateTime(
-                                                  1970,
-                                                ), // Magic date to indicate reset
-                                                end: DateTime(1970),
+                                    Text(
+                                      'TRANSACTIONS',
+                                      style: TextStyle(
+                                        color: hintColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          _showSortFilterDialog(context),
+                                      child: Row(
+                                        children: [
+                                          if (budgetState.hasActiveSortOrFilter)
+                                            const Padding(
+                                              padding: EdgeInsets.only(
+                                                right: 6.0,
                                               ),
-                                            );
-                                          },
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
+                                              child: Text(
+                                                'Filtered',
+                                                style: TextStyle(
+                                                  color: Color(0xFF00E676),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
-                                            foregroundColor: isDark
-                                                ? Colors.white
-                                                : Colors.black,
+                                          Icon(
+                                            Icons.filter_list,
+                                            color:
+                                                budgetState
+                                                    .hasActiveSortOrFilter
+                                                ? const Color(0xFF00E676)
+                                                : hintColor,
+                                            size: 20,
                                           ),
-                                          child: const Text('RESET'),
-                                        ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              );
-                            },
-                          );
-                          if (picked != null) {
-                            if (picked.start == DateTime(1970)) {
-                              budgetState.setDateRange(null, null);
-                            } else {
-                              budgetState.setDateRange(
-                                picked.start,
-                                picked.end,
-                              );
-                            }
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: surfaceColor,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: dividerColor),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.date_range,
-                                size: 16,
-                                color: hintColor,
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                budgetState.filterStartDate != null &&
-                                        budgetState.filterEndDate != null
-                                    ? '${DateFormat('MMM d').format(budgetState.filterStartDate!)} - ${DateFormat('MMM d').format(budgetState.filterEndDate!)}'
-                                    : 'All Time',
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                              // Transaction Log
+                              Expanded(
+                                child: Container(
+                                  color: bgContainerColor,
+                                  child: budgetState.transactions.isEmpty
+                                      ? Center(
+                                          child: Text(
+                                            'No entries found.',
+                                            style: TextStyle(color: hintColor),
+                                          ),
+                                        )
+                                      : ListView.builder(
+                                          controller: scrollController,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                          ),
+                                          itemCount:
+                                              budgetState.transactions.length,
+                                          itemBuilder: (context, index) {
+                                            final tx =
+                                                budgetState.transactions[index];
+                                            return Dismissible(
+                                              key: Key(tx.id),
+                                              background: Container(
+                                                color: Colors.redAccent,
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                padding: const EdgeInsets.only(
+                                                  right: 20,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.delete,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              direction:
+                                                  DismissDirection.endToStart,
+                                              confirmDismiss: (direction) async {
+                                                return await showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    backgroundColor:
+                                                        surfaceColor,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    title: Text(
+                                                      'Delete Entry?',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: textColor,
+                                                      ),
+                                                    ),
+                                                    content: Text(
+                                                      'Are you sure you want to remove this transaction?',
+                                                      style: TextStyle(
+                                                        color: hintColor,
+                                                      ),
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              context,
+                                                              false,
+                                                            ),
+                                                        child: Text(
+                                                          'Cancel',
+                                                          style: TextStyle(
+                                                            color: hintColor,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.redAccent,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          elevation: 0,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              context,
+                                                              true,
+                                                            ),
+                                                        child: const Text(
+                                                          'Delete',
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                              onDismissed: (_) => budgetState
+                                                  .deleteTransaction(tx.id),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color: dividerColor,
+                                                      width: 1,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: ListTile(
+                                                  contentPadding:
+                                                      EdgeInsets.zero,
+                                                  leading: Container(
+                                                    width: 40,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: Color(
+                                                        tx.category.colorValue,
+                                                      ).withOpacity(0.15),
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: Color(
+                                                          tx
+                                                              .category
+                                                              .colorValue,
+                                                        ),
+                                                        width: 1.5,
+                                                      ),
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      tx.category.emoji,
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  title: Text(
+                                                    tx.name,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 16,
+                                                      color: textColor,
+                                                    ),
+                                                  ),
+                                                  subtitle: Text(
+                                                    '${tx.category.name}  •  ${DateFormat('EEEE, MMMM d, yyyy').format(tx.date)}',
+                                                    style: TextStyle(
+                                                      color: hintColor,
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                  trailing: Text(
+                                                    tx.isIncome
+                                                        ? '+${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}'
+                                                        : '-${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}',
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontSize: 16,
+                                                      letterSpacing: -0.5,
+                                                      color: tx.isIncome
+                                                          ? const Color(
+                                                              0xFF00E676,
+                                                            )
+                                                          : textColor,
+                                                    ),
+                                                  ),
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            AddEntryScreen(
+                                                              existingTransaction:
+                                                                  tx,
+                                                            ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                 ),
                               ),
-                              if (budgetState.filterStartDate != null) ...[
-                                const SizedBox(width: 4),
-                                GestureDetector(
-                                  onTap: () =>
-                                      budgetState.setDateRange(null, null),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: hintColor,
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _showBudgetDialog(context),
-                      behavior: HitTestBehavior.opaque,
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                'Base Budget',
-                                style: TextStyle(
-                                  color: hintColor,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              Text(
-                                '${budgetState.currencySymbol}${budgetState.totalBudget.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.monetization_on,
-                            color: hintColor,
-                            size: 28,
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Pie Chart / Ring Graphic
-              Center(
-                child: SizedBox(
-                  height: 260,
-                  width: 260,
-                  child: CustomPaint(
-                    painter: BudgetRingPainter(
-                      categorySpent: budgetState.categorySpentData,
-                      total: budgetState.totalBudget + budgetState.totalIncome,
-                    ),
-                    child: Center(
-                      child: SizedBox(
-                        width: 160,
-                        child: budgetState.totalBudget == 0
-                            ? ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF00E676),
-                                  foregroundColor: Colors.black,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                ),
-                                onPressed: () => _showBudgetDialog(context),
-                                icon: const Icon(
-                                  Icons.monetization_on,
-                                  size: 20,
-                                ),
-                                label: const Text(
-                                  'Set Budget',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Remaining',
-                                    style: TextStyle(
-                                      color: hintColor,
-                                      fontSize: 14,
-                                      letterSpacing: 1.0,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        '${budgetState.currencySymbol}${budgetState.remainingBudget.toStringAsFixed(2)}',
-                                        style: TextStyle(
-                                          fontSize: 36,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: -1.5,
-                                          color:
-                                              budgetState.remainingBudget >= 0
-                                              ? textColor
-                                              : Colors.redAccent,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              // Transaction Log Header
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 8.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'TRANSACTIONS',
-                      style: TextStyle(
-                        color: hintColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _showSortFilterDialog(context),
-                      child: Row(
-                        children: [
-                          if (budgetState.hasActiveSortOrFilter)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 6.0),
-                              child: Text(
-                                'Filtered',
-                                style: TextStyle(
-                                  color: Color(0xFF00E676),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          Icon(
-                            Icons.filter_list,
-                            color: budgetState.hasActiveSortOrFilter
-                                ? const Color(0xFF00E676)
-                                : hintColor,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Transaction Log
-              Expanded(
-                child: Container(
-                  color: bgContainerColor,
-                  child: budgetState.transactions.isEmpty
-                      ? Center(
-                          child: Text(
-                            'No entries found.',
-                            style: TextStyle(color: hintColor),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          itemCount: budgetState.transactions.length,
-                          itemBuilder: (context, index) {
-                            final tx = budgetState.transactions[index];
-                            return Dismissible(
-                              key: Key(tx.id),
-                              background: Container(
-                                color: Colors.redAccent,
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(right: 20),
-                                child: const Icon(
-                                  Icons.delete,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              direction: DismissDirection.endToStart,
-                              confirmDismiss: (direction) async {
-                                return await showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    backgroundColor: surfaceColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    title: Text(
-                                      'Delete Entry?',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: textColor,
-                                      ),
-                                    ),
-                                    content: Text(
-                                      'Are you sure you want to remove this transaction?',
-                                      style: TextStyle(color: hintColor),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, false),
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(color: hintColor),
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.redAccent,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: () =>
-                                            Navigator.pop(context, true),
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              onDismissed: (_) =>
-                                  budgetState.deleteTransaction(tx.id),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: dividerColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  leading: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: Color(
-                                        tx.category.colorValue,
-                                      ).withOpacity(0.15),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Color(tx.category.colorValue),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      tx.category.emoji,
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    tx.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    '${tx.category.name}  •  ${DateFormat('EEEE, MMMM d, yyyy').format(tx.date)}',
-                                    style: TextStyle(
-                                      color: hintColor,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  trailing: Text(
-                                    tx.isIncome
-                                        ? '+${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}'
-                                        : '-${budgetState.currencySymbol}${tx.amount.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-q                                      fontSize: 16,
-                                      letterSpacing: -0.5,
-                                      color: tx.isIncome
-                                          ? const Color(0xFF00E676)
-                                          : textColor,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => AddEntryScreen(
-                                          existingTransaction: tx,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        ),
                 ),
               ),
               Container(
